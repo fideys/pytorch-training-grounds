@@ -37,7 +37,9 @@ print("target shape:", y.shape)  # Should print: torch.Size([10, 1])
 model = nn.Sequential(
     nn.Linear(3, 8),
     nn.ReLU(),
-    nn.Linear(8, 1),
+    nn.Linear(8, 8),
+    nn.ReLU(),
+    nn.Linear(8, 1)
 )
 
 z = model(x)
