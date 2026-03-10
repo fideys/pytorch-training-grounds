@@ -95,16 +95,13 @@ plt.ylabel("Loss")
 plt.title("Training Loss")
 plt.show()
 
-
-model.eval()
-
+# Get a test image for saliency visualization
 images, labels = next(iter(test_data_loader))
-
 image = images[0].unsqueeze(0)  # Add batch dimension: [1, 28, 28] -> [1, 1, 28, 28]
 label = labels[0]
-
 image.requires_grad = True
 
+model.eval()
 output = model(image)
 
 predicted_class = output.argmax(dim=1)
