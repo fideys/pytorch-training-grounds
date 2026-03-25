@@ -65,12 +65,12 @@ for epoch in range(5):
     losses.append(avg_loss)
     print(f"Epoch {epoch+1}/5 completed - Loss: {avg_loss:.4f}")
 
-# Plot training loss
-plt.plot(losses)
-plt.xlabel("Epoch")
-plt.ylabel("Loss")
-plt.title("Training Loss")
-plt.show()
+# # Plot training loss
+# plt.plot(losses)
+# plt.xlabel("Epoch")
+# plt.ylabel("Loss")
+# plt.title("Training Loss")
+# plt.show()
 
 
 model.eval()
@@ -86,7 +86,6 @@ image.requires_grad = True
 output = model(image)
 
 predicted_class = output.argmax(dim=1)
-print("Predicted:", predicted_class.item())
 model.zero_grad()
 output[0, predicted_class].backward()
 
@@ -107,14 +106,3 @@ plt.title("Pixel importance")
 plt.axis("off")
 
 plt.show()
-
-
-plt.imshow(image.squeeze(), cmap="gray")
-plt.title(f"True label: {label}")
-plt.axis("off")
-plt.show()
-
-
-
-print(f"Final image shape: {images.shape}")
-print(f"Final label shape: {labels.shape}")
