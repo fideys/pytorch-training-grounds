@@ -87,6 +87,43 @@ for epoch in range(5):
     avg_loss = epoch_loss / len(train_data_loader)
     losses.append(avg_loss)
     print(f"Epoch {epoch+1}/5 completed - Loss: {avg_loss:.4f}")
+    
+# training loop ends here
+# define smoothgrad
+def smooth_grad(image, model, n_samples=20, noise_level=0.1):
+    grads = []
+
+    for _ in range(n_samples):
+        noise = torch.randn_like(image) * noise_level
+        noisy_image = image + noise
+        noisy_image.requires_grad = True
+
+        output = model(noisy_image)
+        pred = output.argmax(dim=1).item()
+
+        model.zero_grad()
+        output[0, pred].backward()
+
+        grads.append(noisy_image.grad.abs())
+
+    return torch.stack(grads).mean(dim=0)
+
+# see test accuracy
+correct = 0
+total = 0
+
+model.eval()
+
+with torch.no_grad():
+    for images, labels in test_data_loader:
+        outputs = model(images)
+        predictions = outputs.argmax(dim=1)
+        correct += (predictions == labels).sum().item()
+        total += labels.size(0)
+
+accuracy = correct / total
+print(f"Test Accuracy: {accuracy * 100:.2f}%")
+
 
 # # Plot training loss
 # plt.plot(losses)
@@ -99,17 +136,9 @@ for epoch in range(5):
 images, labels = next(iter(test_data_loader))
 image = images[0].unsqueeze(0)  # Add batch dimension: [1, 28, 28] -> [1, 1, 28, 28]
 label = labels[0]
-image.requires_grad = True
-
 model.eval()
-output = model(image)
 
-predicted_class = output.argmax(dim=1)
-model.zero_grad()
-output[0, predicted_class].backward()
-
-saliency = image.grad.abs()
-
+saliency = smooth_grad(image, model)
 saliency = saliency.view(28, 28).detach()
 
 plt.figure(figsize=(6,3))
