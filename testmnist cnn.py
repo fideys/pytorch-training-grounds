@@ -41,6 +41,8 @@ test_data_loader = DataLoader(
 class CNN(nn.Module):
     def __init__(self):
         super().__init__()
+        
+        self.dropout = nn.Dropout(0.25)
 
         # Convolution layers
         self.conv1 = nn.Conv2d(1, 16, 3, padding=1)
@@ -59,9 +61,11 @@ class CNN(nn.Module):
 
         x = x.view(x.size(0), -1)
 
+        # Dropout is applied before and after the first fully connected layer for stronger regularization.
+        x = self.dropout(x)
         x = F.relu(self.fc1(x))
+        x = self.dropout(x)
         return self.fc2(x)
-
 model = CNN()
 
 loss_fn = nn.CrossEntropyLoss()
@@ -70,7 +74,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 # Training loop
 losses = []
 
-for epoch in range(5):
+for epoch in range(15):
+    model.train()
     epoch_loss = 0
 
     for images, labels in train_data_loader:
