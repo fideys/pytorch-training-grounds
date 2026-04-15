@@ -47,6 +47,8 @@ class CNN(nn.Module):
         # Convolution layers
         self.conv1 = nn.Conv2d(1, 16, 3, padding=1)
         self.conv2 = nn.Conv2d(16, 32, 3, padding=1)
+        # new layer (woah)
+        self.conv3 = nn.Conv2d(32, 64, 3, padding=1)
 
         # Fully connected layers
         self.fc1 = nn.Linear(32 * 7 * 7, 128)
@@ -59,6 +61,8 @@ class CNN(nn.Module):
         x = F.relu(self.conv2(x))
         x = F.max_pool2d(x, 2)
 
+        # new layer but in the forward propagation
+        x = F.relu(self.conv3(x))
         x = x.view(x.size(0), -1)
 
         # Dropout is applied before and after the first fully connected layer for stronger regularization.
