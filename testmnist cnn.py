@@ -51,7 +51,7 @@ class CNN(nn.Module):
         self.conv3 = nn.Conv2d(32, 64, 3, padding=1)
 
         # Fully connected layers
-        self.fc1 = nn.Linear(32 * 7 * 7, 128)
+        self.fc1 = nn.Linear(64 * 7 * 7, 128)
         self.fc2 = nn.Linear(128, 10)
 
     def forward(self, x):
@@ -63,6 +63,7 @@ class CNN(nn.Module):
 
         # new layer but in the forward propagation
         x = F.relu(self.conv3(x))
+        
         x = x.view(x.size(0), -1)
 
         # Dropout is applied before and after the first fully connected layer for stronger regularization.
