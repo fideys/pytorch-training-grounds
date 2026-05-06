@@ -27,13 +27,17 @@ test_data = datasets.MNIST(
 train_data_loader = DataLoader(
     dataset=train_data,
     batch_size=64,
-    shuffle=True
+    shuffle=True,
+    num_workers=0 if device.type == 'cpu' else 4,  # Reduce workers for CPU
+    pin_memory=device.type == 'cuda'  # Only use pin_memory with GPU
 )
 
 test_data_loader = DataLoader(
     dataset=test_data,
     batch_size=64,
-    shuffle=False
+    shuffle=False,
+    num_workers=0 if device.type == 'cpu' else 2,  # Reduce workers for CPU
+    pin_memory=device.type == 'cuda'  # Only use pin_memory with GPU
 )
 
 # define the model
@@ -72,6 +76,10 @@ class CNN(nn.Module):
         x = self.dropout(x)
         return self.fc2(x)
 model = CNN()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = model.to(device)  # Fixed: reassign the model
+
+print(f"Using device: {device}")  # Add this to confirm device
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -84,7 +92,9 @@ for epoch in range(15):
     epoch_loss = 0
 
     for images, labels in train_data_loader:
-        
+        images = images.to(device)
+        labels = labels.to(device)
+
         outputs = model(images)
         loss = loss_fn(outputs, labels)
 
@@ -96,7 +106,7 @@ for epoch in range(15):
 
     avg_loss = epoch_loss / len(train_data_loader)
     losses.append(avg_loss)
-    print(f"Epoch {epoch+1}/5 completed - Loss: {avg_loss:.4f}")
+    print(f"Epoch {epoch+1}/15 completed - Loss: {avg_loss:.4f}")
     
 # training loop ends here
 # define smoothgrad
@@ -126,6 +136,8 @@ model.eval()
 
 with torch.no_grad():
     for images, labels in test_data_loader:
+        images = images.to(device)
+        labels = labels.to(device)
         outputs = model(images)
         predictions = outputs.argmax(dim=1)
         correct += (predictions == labels).sum().item()
