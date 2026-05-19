@@ -7,5 +7,12 @@
     "powermode.combo.timeout": 1,
     "powermode.combo.threshold": 10,
     "powermode.combo.counterSize": 1,
-    "powermode.explosions.enabled": true
+    "powermode.explosions.enabled": true,
+    "python-envs.pythonProjects": [
+        {
+            "path": ".",
+            "envManager": "ms-python.python:conda",
+            "packageManager": "ms-python.python:conda"
+        }
+    ]
 }

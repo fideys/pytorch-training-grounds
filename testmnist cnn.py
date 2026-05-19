@@ -5,6 +5,13 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
+if torch.xpu.is_available():
+    device = torch.device("xpu")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+    
 
 transform = transforms.ToTensor()
 
@@ -29,7 +36,7 @@ train_data_loader = DataLoader(
     batch_size=64,
     shuffle=True,
     num_workers=0 if device.type == 'cpu' else 4,  # Reduce workers for CPU
-    pin_memory=device.type == 'cuda'  # Only use pin_memory with GPU
+    pin_memory=device.type in ('cuda', 'xpu') # Only use pin_memory with GPU or XPU
 )
 
 test_data_loader = DataLoader(
@@ -37,7 +44,7 @@ test_data_loader = DataLoader(
     batch_size=64,
     shuffle=False,
     num_workers=0 if device.type == 'cpu' else 2,  # Reduce workers for CPU
-    pin_memory=device.type == 'cuda'  # Only use pin_memory with GPU
+    pin_memory=device.type in ('cuda', 'xpu') # Only use pin_memory with GPU or XPU
 )
 
 # define the model
@@ -76,7 +83,6 @@ class CNN(nn.Module):
         x = self.dropout(x)
         return self.fc2(x)
 model = CNN()
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = model.to(device)  # Fixed: reassign the model
 
 print(f"Using device: {device}")  # Add this to confirm device
@@ -110,12 +116,12 @@ for epoch in range(15):
     
 # training loop ends here
 # define smoothgrad
-def smooth_grad(image, model, n_samples=20, noise_level=0.1):
+def smooth_grad(image, model, device, n_samples=20, noise_level=0.1):
     grads = []
 
     for _ in range(n_samples):
         noise = torch.randn_like(image) * noise_level
-        noisy_image = image + noise
+        noisy_image = (image + noise).to(device)
         noisy_image.requires_grad = True
 
         output = model(noisy_image)
@@ -160,8 +166,9 @@ image = images[0].unsqueeze(0)  # Add batch dimension: [1, 28, 28] -> [1, 1, 28,
 label = labels[0]
 model.eval()
 
-saliency = smooth_grad(image, model)
-saliency = saliency.view(28, 28).detach()
+saliency = smooth_grad(image, model, device)
+saliency = saliency.view(28, 28).detach().cpu()
+image = image.cpu()
 
 plt.figure(figsize=(6,3))
 
