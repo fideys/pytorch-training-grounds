@@ -35,7 +35,7 @@ train_data_loader = DataLoader(
     dataset=train_data,
     batch_size=64,
     shuffle=True,
-    num_workers=0 if device.type == ('cpu', 'xpu') else 4  # Reduce workers for CPU
+    num_workers=0 if device.type in ('cpu', 'xpu') else 4,  # Reduce workers for CPU
     pin_memory=device.type in ('cuda', 'xpu') # Only use pin_memory with GPU or XPU
 )
 
@@ -43,7 +43,7 @@ test_data_loader = DataLoader(
     dataset=test_data,
     batch_size=64,
     shuffle=False,
-    num_workers=0 if device.type == 'cpu' else 2,  # Reduce workers for CPU
+    num_workers=0 if device.type in ('cpu', 'xpu') else 2,  # Reduce workers for CPU
     pin_memory=device.type in ('cuda', 'xpu') # Only use pin_memory with GPU or XPU
 )
 
