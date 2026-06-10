@@ -93,7 +93,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 # Training loop
 losses = []
 
-for epoch in range(15):
+for epoch in range(5):
     model.train()
     epoch_loss = 0
 
@@ -112,7 +112,7 @@ for epoch in range(15):
 
     avg_loss = epoch_loss / len(train_data_loader)
     losses.append(avg_loss)
-    print(f"Epoch {epoch+1}/15 completed - Loss: {avg_loss:.4f}")
+    print(f"Epoch {epoch+1}/5 completed - Loss: {avg_loss:.4f}")
     
 # training loop ends here
 # define smoothgrad
