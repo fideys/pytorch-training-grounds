@@ -1,0 +1,86 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
+
+if torch.xpu.is_available():
+    device = torch.device("xpu")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+
+#   epochs = int(input("epochs amount: "))
+epochs = 5
+    
+transform = transforms.ToTensor()
+
+print("Downloading MNIST training data...")
+train_data = datasets.MNIST(
+    root='./data',
+    train=True,
+    download=True,
+    transform=transform
+)
+
+print("Downloading MNIST test data...")
+test_data = datasets.MNIST(
+    root='./data',
+    train=False,
+    download=True,
+    transform=transform
+)
+
+train_data_loader = DataLoader(
+    dataset=train_data,
+    batch_size=64,
+    shuffle=True,
+    num_workers=4,# Windows multiprocessing issue: set to 0
+    pin_memory=device.type in ('cuda', 'xpu') # Only use pin_memory with GPU or XPU
+)
+
+test_data_loader = DataLoader(
+    dataset=test_data,
+    batch_size=64,
+    shuffle=False,
+    num_workers=4,  # Windows multiprocessing issue: set to 0
+    pin_memory=device.type in ('cuda', 'xpu') # Only use pin_memory with GPU or XPU
+)
+
+# define the model
+
+class CNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        
+        self.dropout = nn.Dropout(0.25)
+
+        # Convolution layers
+        self.conv1 = nn.Conv2d(1, 16, 3, padding=1)
+        self.conv2 = nn.Conv2d(16, 32, 3, padding=1)
+        # new layer (woah)
+        self.conv3 = nn.Conv2d(32, 64, 3, padding=1)
+
+        # Fully connected layers
+        self.fc1 = nn.Linear(64 * 7 * 7, 128)
+        self.fc2 = nn.Linear(128, 10)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        x = F.max_pool2d(x, 2)
+
+        x = F.relu(self.conv2(x))
+        x = F.max_pool2d(x, 2)
+
+        # new layer but in the forward propagation
+        x = F.relu(self.conv3(x))
+        
+        x = x.view(x.size(0), -1)
+
+        # Dropout is applied before and after the first fully connected layer for stronger regularization.
+        x = self.dropout(x)
+        x = F.relu(self.fc1(x))
+        x = self.dropout(x)
+        return self.fc2(x)
