@@ -3,7 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
 
 # Define device globally
 if torch.xpu.is_available():
@@ -67,12 +66,12 @@ def smooth_grad(image, model, device, n_samples=20, noise_level=0.1):
 
     return torch.stack(grads).mean(dim=0)
 
-if __name__ == '__main__':
-    #   epochs = int(input("epochs amount: "))
-    epochs = 5
-        
-    transform = transforms.ToTensor()
+#   epochs = int(input("epochs amount: "))
+epochs = 5
 
+transform = transforms.ToTensor()
+
+def load_mnist_data():
     print("Downloading MNIST training data...")
     train_data = datasets.MNIST(
         root='./data',
@@ -93,7 +92,7 @@ if __name__ == '__main__':
         dataset=train_data,
         batch_size=64,
         shuffle=True,
-        num_workers=4,
+        num_workers=0,
         pin_memory=device.type in ('cuda', 'xpu')
     )
 
@@ -101,81 +100,62 @@ if __name__ == '__main__':
         dataset=test_data,
         batch_size=64,
         shuffle=False,
-        num_workers=4,
+        num_workers=0,
         pin_memory=device.type in ('cuda', 'xpu')
     )
+    return train_data_loader, test_data_loader
 
-    model = CNN()
-    model = model.to(device)
+model = CNN()
+model = model.to(device)
 
-    print(f"Using device: {device}")
+print(f"Using device: {device}")
 
-    loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+loss_fn = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    # Training loop
-    losses = []
+# Training loop
+losses = []
 
-    for epoch in range(epochs):
-        model.train()
-        epoch_loss = 0
+for epoch in range(epochs):
+    model.train()
+    epoch_loss = 0
 
-        for images, labels in train_data_loader:
-            images = images.to(device)
-            labels = labels.to(device)
+    for images, labels in train_data_loader:
+        images = images.to(device)
+        labels = labels.to(device)
 
-            outputs = model(images)
-            loss = loss_fn(outputs, labels)
+        outputs = model(images)
+        loss = loss_fn(outputs, labels)
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-            epoch_loss += loss.item()
+        epoch_loss += loss.item()
 
-        avg_loss = epoch_loss / len(train_data_loader)
-        losses.append(avg_loss)
-        print(f"Epoch {epoch+1}/{epochs} completed - Loss: {avg_loss:.4f}")
+    avg_loss = epoch_loss / len(train_data_loader)
+    losses.append(avg_loss)
+    print(f"Epoch {epoch+1}/{epochs} completed - Loss: {avg_loss:.4f}")
 
-    # See test accuracy
-    correct = 0
-    total = 0
+# See test accuracy
+correct = 0
+total = 0
 
-    model.eval()
+model.eval()
 
-    with torch.no_grad():
-        for images, labels in test_data_loader:
-            images = images.to(device)
-            labels = labels.to(device)
-            outputs = model(images)
-            predictions = outputs.argmax(dim=1)
-            correct += (predictions == labels).sum().item()
-            total += labels.size(0)
+with torch.no_grad():
+    for images, labels in test_data_loader:
+        images = images.to(device)
+        labels = labels.to(device)
+        outputs = model(images)
+        predictions = outputs.argmax(dim=1)
+        correct += (predictions == labels).sum().item()
+        total += labels.size(0)
 
-    accuracy = correct / total
-    print(f"Test Accuracy: {accuracy * 100:.2f}%")
+accuracy = correct / total
+print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
-    # Get a test image for saliency visualization
-    images, labels = next(iter(test_data_loader))
-    image = images[0].unsqueeze(0)
-    label = labels[0]
-    model.eval()
-
-    saliency = smooth_grad(image, model, device)
-    saliency = saliency.view(28, 28).detach().cpu()
-    image = image.cpu()
-
-    plt.figure(figsize=(6,3))
-
-    plt.subplot(1,2,1)
-    plt.imshow(image.detach().view(1, 28, 28)[0], cmap="gray")
-    plt.title("Input")
-    plt.axis("off")
-
-    plt.subplot(1,2,2)
-    plt.imshow(saliency, cmap="hot")
-    plt.title("Pixel importance")
-    plt.axis("off")
-
-    plt.savefig(f"outputsmatplotlib/{epochs}epochs.png")
-    plt.show()
+torch.save(model.state_dict(), "mnist_cnn.pth")
+print("Model saved as mnist_cnn.pth")
+    
+if __name__ == '__main__':
