@@ -20,8 +20,8 @@ root.title("Digit Recognizer")
 
 canvas = tk.Canvas(
     root,
-    width=280,
-    height=280,
+    width=560,
+    height=560,
     bg="black"
 )
 
@@ -30,12 +30,12 @@ canvas.pack()
 prediction_label = tk.Label(
     root,
     text="Prediction: ?",
-    font=("Arial", 20)
+    font=("Cascadia Code SemiBold", 40)
 )
 
 prediction_label.pack()
 
-image = Image.new("L", (280, 280), 0)
+image = Image.new("L", (560, 560), 0)
 draw = ImageDraw.Draw(image)
 
 def paint(event):
@@ -56,6 +56,16 @@ def paint(event):
 
 canvas.bind("<B1-Motion>", paint)
 
+def clear_canvas():
+    global image, draw
+
+    canvas.delete("all")
+
+    image = Image.new("L", (560, 560), 0)
+    draw = ImageDraw.Draw(image)
+
+    prediction_label.config(text="Prediction: ?")
+
 # do a ton of transforms to get the image into a tensor
 def predict():
     small = image.resize((28, 28))
@@ -67,19 +77,34 @@ def predict():
     with torch.no_grad():
         output = model(tensor)
 
-    prediction = output.argmax(dim=1).item()
+    probabilities = torch.softmax(output, dim=1)
+
+    prediction = probabilities.argmax(dim=1).item()
+    confidence = probabilities.max().item()
 
     prediction_label.config(
-        text=f"Prediction: {prediction}"
+        text=f"Prediction: {prediction} (Confidence: {confidence:.2f})"
     )
     
 predict_button = tk.Button(
     root,
     text="Predict",
-    command=predict
+    command=predict,
+    width=20,
+    height=2
 )
 
 predict_button.pack()
+
+clear_button = tk.Button(
+    root,
+    text="Clear",
+    command=clear_canvas,
+    width=10,
+    height=1
+)
+
+clear_button.pack()
 
 # always put at the end of the tkinter code
 root.mainloop()

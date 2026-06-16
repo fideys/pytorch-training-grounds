@@ -67,7 +67,7 @@ def smooth_grad(image, model, device, n_samples=20, noise_level=0.1):
     return torch.stack(grads).mean(dim=0)
 
 #   epochs = int(input("epochs amount: "))
-epochs = 5
+epochs = 15
 
 transform = transforms.ToTensor()
 
