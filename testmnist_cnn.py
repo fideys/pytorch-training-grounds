@@ -105,57 +105,66 @@ def load_mnist_data():
     )
     return train_data_loader, test_data_loader
 
-model = CNN()
-model = model.to(device)
+if __name__ == '__main__':
+    model = CNN()
+    model = model.to(device)
 
-print(f"Using device: {device}")
+    print(f"Using device: {device}")
 
-loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-# Training loop
-losses = []
 
-for epoch in range(epochs):
-    model.train()
-    epoch_loss = 0
+# Load MNIST data loaders
+    train_data_loader, test_data_loader = load_mnist_data()
 
-    for images, labels in train_data_loader:
-        images = images.to(device)
-        labels = labels.to(device)
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-        outputs = model(images)
-        loss = loss_fn(outputs, labels)
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    # Training loop
+    losses = []
+    def train_model():
+        for epoch in range(epochs):
+            model.train()
+            epoch_loss = 0
 
-        epoch_loss += loss.item()
+            for images, labels in train_data_loader:
+                images = images.to(device)
+                labels = labels.to(device)
 
-    avg_loss = epoch_loss / len(train_data_loader)
-    losses.append(avg_loss)
-    print(f"Epoch {epoch+1}/{epochs} completed - Loss: {avg_loss:.4f}")
+                outputs = model(images)
+                loss = loss_fn(outputs, labels)
+
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+                epoch_loss += loss.item()
+
+            avg_loss = epoch_loss / len(train_data_loader)
+            losses.append(avg_loss)
+            print(f"Epoch {epoch+1}/{epochs} completed - Loss: {avg_loss:.4f}")
 
 # See test accuracy
-correct = 0
-total = 0
+    def test_and_save():
+        correct = 0
+        total = 0
 
-model.eval()
-
-with torch.no_grad():
-    for images, labels in test_data_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        outputs = model(images)
-        predictions = outputs.argmax(dim=1)
-        correct += (predictions == labels).sum().item()
-        total += labels.size(0)
-
-accuracy = correct / total
-print(f"Test Accuracy: {accuracy * 100:.2f}%")
-
-torch.save(model.state_dict(), "mnist_cnn.pth")
-print("Model saved as mnist_cnn.pth")
+        model.eval()
     
-if __name__ == '__main__':
+        with torch.no_grad():
+            for images, labels in test_data_loader:
+                images = images.to(device)
+                labels = labels.to(device)
+                outputs = model(images)
+                predictions = outputs.argmax(dim=1)
+                correct += (predictions == labels).sum().item()
+                total += labels.size(0)
+
+        accuracy = correct / total
+        print(f"Test Accuracy: {accuracy * 100:.2f}%")
+
+        torch.save(model.state_dict(), "mnist_cnn.pth")
+        print("Model saved as mnist_cnn.pth")
+    
+    train_model()
+    test_and_save()
