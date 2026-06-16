@@ -1,0 +1,1 @@
+python314 pip install -r requirements.txt
