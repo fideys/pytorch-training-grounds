@@ -29,7 +29,7 @@ canvas.pack()
 
 prediction_label = tk.Label(
     root,
-    text="Prediction: ?",
+    text="Prediction: ? (Confidence: ?)",
     font=("Cascadia Code SemiBold", 40)
 )
 
@@ -64,7 +64,7 @@ def clear_canvas():
     image = Image.new("L", (560, 560), 0)
     draw = ImageDraw.Draw(image)
 
-    prediction_label.config(text="Prediction: ?")
+    prediction_label.config(text="Prediction: ? (Confidence: ?)")
 
 # do a ton of transforms to get the image into a tensor
 def predict():
