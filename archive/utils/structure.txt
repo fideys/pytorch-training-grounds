@@ -1,0 +1,43 @@
+pytorch-training-grounds
+|-- .vscode
+|   \-- settings.json
+|-- archive
+|   \-- antonio
+|       |-- test1.py
+|       |-- testmnist.py
+|       |-- testmnist_cnn_backup
+|       |-- that one part of code
+|       \-- that two part of code
+|-- data
+|   \-- MNIST
+|       \-- raw
+|           |-- t10k-images-idx3-ubyte
+|           |-- t10k-images-idx3-ubyte.gz
+|           |-- t10k-labels-idx1-ubyte
+|           |-- t10k-labels-idx1-ubyte.gz
+|           |-- train-images-idx3-ubyte
+|           |-- train-images-idx3-ubyte.gz
+|           |-- train-labels-idx1-ubyte
+|           \-- train-labels-idx1-ubyte.gz
+|-- models
+|   \-- antonio
+|       |-- drawdigits.py
+|       |-- install_requirements.bat
+|       |-- mnist_cnn.pth
+|       |-- requirements.txt
+|       \-- testmnist_cnn.py
+|-- outputs
+|   |-- logs
+|   |-- matplotlib
+|   |   \-- antonio
+|   |       |-- 1epochs.png
+|   |       |-- 2epochs.png
+|   |       |-- 3epochs.png
+|   |       |-- 4epochs.png
+|   |       \-- 5epochs.png
+|   \-- samples
+|-- .gitignore
+|-- LICENSE
+|-- README.md
+|-- structure.txt
+\-- tree.py

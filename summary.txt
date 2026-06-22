@@ -1,0 +1,203 @@
+
+PROJECT: MNIST CNN Digit Recognizer (Completed & Presented Successfully)
+
+STATUS
+- Project was completed, presented, and worked during the presentation.
+- requirements.txt was used successfully on another machine.
+- Model achieved roughly 99.8% test accuracy.
+- User wants to continue learning PyTorch despite the school project being finished.
+
+FINAL PROJECT FEATURES
+- CNN trained on MNIST using PyTorch.
+- CUDA/XPU/CPU device selection.
+- Training loop with CrossEntropyLoss and Adam.
+- Dropout regularization.
+- Model saving/loading via:
+    torch.save(model.state_dict(), "mnist_cnn.pth")
+    model.load_state_dict(...)
+- Tkinter GUI application.
+- User can draw digits on a canvas.
+- Hidden Pillow image mirrors the drawing.
+- Predict button:
+    Pillow image
+    -> resize to 28x28
+    -> ToTensor()
+    -> unsqueeze(0)
+    -> model inference
+    -> prediction display
+- Clear button implemented.
+- Confidence score planned/implemented via:
+    probabilities = torch.softmax(output, dim=1)
+    confidence = probabilities.max().item()
+
+IMPORTANT PYTHON LESSONS LEARNED
+
+Functions
+---------
+def something():
+    ...
+
+creates a function.
+
+something()
+
+runs a function.
+
+Return values
+-------------
+Functions that return values:
+
+    def get_number():
+        return 42
+
+can be used like:
+
+    x = get_number()
+
+Functions without return values are usually called directly:
+
+    do_stuff()
+
+__name__ == "__main__"
+-----------------------
+Used to prevent training code from running when importing the file.
+
+Structure:
+
+    def load_data():
+        ...
+
+    class CNN(...):
+        ...
+
+    if __name__ == "__main__":
+        ...
+
+This allows:
+
+    from testmnist_cnn import CNN
+
+without retraining the model.
+
+PROJECT FILE ORGANIZATION
+
+Current structure:
+
+pytorch-training-grounds/
+|
+|-- archive/
+|-- data/
+|-- models/
+|   \-- antonio/
+|       |-- drawdigits.py
+|       |-- mnist_cnn.pth
+|       |-- requirements.txt
+|       \-- testmnist_cnn.py
+|-- outputs/
+|-- README.md
+|-- LICENSE
+
+Advice:
+- Leave MNIST project frozen.
+- Create a new folder for CIFAR-10 work.
+
+Suggested structure:
+
+models/
+├── antonio/
+└── cifar10/
+    ├── train_cifar.py
+    ├── classify_image.py
+    └── cifar10_cnn.pth
+
+CIFAR-10 NEXT STEPS
+
+Why CIFAR-10?
+-------------
+Natural progression after MNIST.
+
+MNIST:
+- 28x28
+- grayscale
+- digits
+
+CIFAR-10:
+- 32x32
+- RGB
+- real-world objects
+
+Classes:
+- airplane
+- automobile
+- bird
+- cat
+- deer
+- dog
+- frog
+- horse
+- ship
+- truck
+
+Key CNN Change
+--------------
+MNIST:
+
+    nn.Conv2d(1, ...)
+
+CIFAR:
+
+    nn.Conv2d(3, ...)
+
+because CIFAR images have RGB channels.
+
+Expected Difficulty
+-------------------
+MNIST:
+    ~99%+ accuracy is easy.
+
+CIFAR:
+    60-80% on a first attempt is normal.
+
+Do not panic if accuracy is much lower.
+
+New Concepts To Learn
+---------------------
+Data augmentation:
+
+    transforms.RandomHorizontalFlip()
+    transforms.RandomCrop()
+    transforms.ColorJitter()
+
+Visualization of predictions:
+
+    image
+    true label
+    predicted label
+    confidence
+
+Potential Future Projects
+-------------------------
+1. CIFAR-10 classifier (chosen next project).
+2. Custom dataset classifier.
+3. Tiny transformer / language model.
+4. Reinforcement learning.
+5. Diffusion model study.
+6. Cryptid/VMF-themed classifier.
+
+IMPORTANT TAKEAWAY
+------------------
+Most important thing learned was not CNNs.
+
+The most valuable pipeline learned was:
+
+    Train
+    ↓
+    Save
+    ↓
+    Load
+    ↓
+    Inference
+    ↓
+    Application
+
+A complete end-to-end ML project was successfully built and shipped.
