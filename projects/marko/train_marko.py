@@ -5,6 +5,13 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
+if torch.xpu.is_available():
+    device = torch.device("xpu")
+elif torch.cuda.is_available():
+    device = torch.device("cuda")
+else:
+    device = torch.device("cpu")
+
 def load_cifar10_data():
     transform = transforms.ToTensor()
 
@@ -102,4 +109,38 @@ class CNN(nn.Module):
     
 epochs = 15
 
-# add the training loop here... i'm burnt out.
+# training loop
+model = CNN().to(device)
+
+print(f"Using device: {device}")
+
+loss_fn = nn.CrossEntropyLoss()
+
+optimizer = torch.optim.Adam(
+    model.parameters(),
+    lr=0.001
+)
+
+
+def train():
+    model.train()
+    
+    for epoch in range(epochs):
+        epoch_loss = 0.0
+        
+        for images, labels in train_loader:
+        images = images.to(device)
+        labels = labels.to(device)
+        
+        outputs = model(images) 
+        loss = loss_fn(outputs, labels)
+        
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        epoch.loss == loss.item()
+
+avg_loss = epoch.loss / len(train_loader)
+
+print(f"Epoch {epoch + 1}/{epochs} - Loss: {avg_loss:.4f}")
