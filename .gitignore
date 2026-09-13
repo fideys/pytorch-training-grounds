@@ -213,3 +213,19 @@ __pycache__/
 *.pth
 
 outputs/
+
+# Local training artifacts and experiment logs
+checkpoints/
+runs/
+lightning_logs/
+wandb/
+mlruns/
+*.ckpt
+*.pt
+*.onnx
+
+# Local secrets and operating-system metadata
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
