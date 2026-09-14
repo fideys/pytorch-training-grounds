@@ -111,46 +111,44 @@ if __name__ == '__main__':
 
     print(f"Using device: {device}")
 
-
-
-# Load MNIST data loaders
+    # Load MNIST data loaders
     train_data_loader, test_data_loader = load_mnist_data()
 
-        loss_fn = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    loss_fn = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
+    # Training loop
+    losses = []
 
-        # Training loop
-        losses = []
-        def train_model():
-            for epoch in range(epochs):
-                model.train()
-                epoch_loss = 0
+    def train_model():
+        for epoch in range(epochs):
+            model.train()
+            epoch_loss = 0
 
-                for images, labels in train_data_loader:
-                    images = images.to(device)
-                    labels = labels.to(device)
+            for images, labels in train_data_loader:
+                images = images.to(device)
+                labels = labels.to(device)
 
-                    outputs = model(images)
-                    loss = loss_fn(outputs, labels)
+                outputs = model(images)
+                loss = loss_fn(outputs, labels)
 
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-                    epoch_loss += loss.item()
+                epoch_loss += loss.item()
 
-                avg_loss = epoch_loss / len(train_data_loader)
-                losses.append(avg_loss)
-                print(f"Epoch {epoch+1}/{epochs} completed - Loss: {avg_loss:.4f}")
+            avg_loss = epoch_loss / len(train_data_loader)
+            losses.append(avg_loss)
+            print(f"Epoch {epoch+1}/{epochs} completed - Loss: {avg_loss:.4f}")
 
-# See test accuracy
+    # See test accuracy
     def test_and_save():
         correct = 0
         total = 0
 
         model.eval()
-    
+
         with torch.no_grad():
             for images, labels in test_data_loader:
                 images = images.to(device)
@@ -165,6 +163,6 @@ if __name__ == '__main__':
 
         torch.save(model.state_dict(), "mnist_cnn.pth")
         print("Model saved as mnist_cnn.pth")
-    
+
     train_model()
     test_and_save()
